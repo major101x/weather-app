@@ -108,7 +108,6 @@ main {
 }
 
 main .weather-card {
-  display: flex;
   width: 600px;
   color: white;
   flex-direction: column;
@@ -129,6 +128,10 @@ main .weather-card {
     .temp-and-condition {
       font-size: 6.4rem;
       font-weight: 500;
+
+      .temperature {
+        text-align: center;
+      }
     }
 
     .icon img {
@@ -144,11 +147,11 @@ main .weather-card {
   .description {
     font-size: 3.2rem;
     font-weight: 500;
+    text-align: center;
   }
 }
 
 main .loading {
-  display: flex;
   width: 600px;
   color: white;
   flex-direction: column;
@@ -181,6 +184,18 @@ main .loading {
   to {
     transform: rotate(360deg);
   }
+}
+
+main .error {
+  width: 600px;
+  color: white;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+  gap: 8px;
+  display: none;
+  font-size: 6.4rem;
 }
 
 footer {
