@@ -83,10 +83,27 @@ function initializePage(initialQuery) {
 
     /* Appends data */
     dateTimeDiv.textContent = datetime;
-    temperatureDiv.innerHTML = `${temp}&deg;C`;
+    temperatureDiv.innerHTML = `${temp}&deg;F`;
     conditionDiv.textContent = conditions;
     locationDiv.textContent = resolvedAddress;
     descriptionDiv.textContent = description;
+  }
+
+  function convertTemperature() {
+    /* separates the digits from the unit */
+    const temperature = parseFloat(temperatureDiv.textContent.slice(0, -2), 10);
+    const degree = temperatureDiv.textContent.slice(-2);
+
+    /* convert to Celsius if value is in Fahrenheit and vice versa and updates temperature element */
+    if (degree.slice(-1) === "F") {
+      const temperatureToCelsius = (((temperature - 32) * 5) / 9).toFixed(1);
+      temperatureBtn.innerHTML = "&deg;C";
+      temperatureDiv.innerHTML = `${temperatureToCelsius.toString()}&deg;C`;
+    } else {
+      const temperatureToFahrenheit = ((temperature * 9) / 5 + 32).toFixed(1);
+      temperatureBtn.innerHTML = "&deg;F";
+      temperatureDiv.innerHTML = `${temperatureToFahrenheit.toString()}&deg;F`;
+    }
   }
 
   /* Handles the calling of the API and passes errors to the frontend */
@@ -113,6 +130,10 @@ function initializePage(initialQuery) {
   form.addEventListener("submit", (e) => {
     e.preventDefault(); // Prevents page refresh
     handleSubmit();
+  });
+
+  temperatureBtn.addEventListener("click", () => {
+    convertTemperature(); // Converts the temperature
   });
 
   fetchOnPageLoad(initialQuery); // Fetches data on page load
