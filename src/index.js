@@ -13,7 +13,7 @@ async function getWeatherData(query) {
 
     // Return only needed data
     return {
-      datetime: jsonData.currentConditions.datetime,
+      datetime: jsonData.currentConditions.datetime.slice(0, 5),
       icon: jsonData.currentConditions.icon,
       temp: jsonData.currentConditions.temp,
       conditions: jsonData.currentConditions.conditions,
@@ -30,6 +30,93 @@ async function getWeatherData(query) {
 }
 
 /* Fetch weather data and store it */
-const weatherData = await getWeatherData("niger");
+function initializePage(initialQuery) {
+  // Select all necessary elements
+  const form = document.querySelector("form");
+  const locationInput = document.querySelector("#location");
+  const temperatureBtn = document.querySelector(".temperature-btn");
+  const weatherCard = document.querySelector(".weather-card");
+  const dateTimeDiv = document.querySelector(".date-time");
+  const weatherIconImg = document.querySelector(".conditions img");
+  const temperatureDiv = document.querySelector(".temperature");
+  const conditionDiv = document.querySelector(".condition");
+  const locationDiv = document.querySelector(".location");
+  const descriptionDiv = document.querySelector(".description");
+  const loadingDiv = document.querySelector(".loading");
+  const errorDiv = document.querySelector(".error");
 
-console.log(weatherData);
+  /* Fetches intial data on page load and handles errors */
+  function fetchOnPageLoad(initialQuery) {
+    loadingDiv.style.display = "flex";
+    getWeatherData(initialQuery)
+      .then(function (data) {
+        updateWeather(data);
+      })
+      .catch(function () {
+        errorDiv.style.display = "flex";
+        errorDiv.textContent = "Data not found";
+      })
+      .finally(function () {
+        loadingDiv.style.display = "none";
+      });
+  }
+
+  /* appends weather data from API to DOM  */
+  function updateWeather({
+    datetime,
+    icon,
+    temp,
+    conditions,
+    resolvedAddress,
+    description,
+  }) {
+    errorDiv.style.display = "none";
+    loadingDiv.style.display = "none";
+    weatherCard.style.display = "flex";
+
+    /* Dynamically imports images using webpack dynamic modules */
+    import(
+      /* webpackMode: "eager" */ `./assets/images/weather-icons/${icon}.svg`
+    ).then(function (img) {
+      weatherIconImg.src = img.default;
+    });
+
+    /* Appends data */
+    dateTimeDiv.textContent = datetime;
+    temperatureDiv.innerHTML = `${temp}&deg;C`;
+    conditionDiv.textContent = conditions;
+    locationDiv.textContent = resolvedAddress;
+    descriptionDiv.textContent = description;
+  }
+
+  /* Handles the calling of the API and passes errors to the frontend */
+  async function handleSubmit() {
+    const query = locationInput.value; // Sets query variable to input value
+
+    if (query) {
+      errorDiv.style.display = "none";
+      weatherCard.style.display = "none";
+      loadingDiv.style.display = "flex";
+
+      const weatherData = await getWeatherData(query); // gets the data from the API
+      loadingDiv.style.display = "none";
+
+      if (weatherData) {
+        updateWeather(weatherData);
+      } else {
+        errorDiv.style.display = "flex";
+        errorDiv.textContent = "Data not found";
+      }
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault(); // Prevents page refresh
+    handleSubmit();
+  });
+
+  fetchOnPageLoad(initialQuery); // Fetches data on page load
+}
+
+initializePage("Lagos"); // Initializes the webpage
+// console.log(weatherData);
